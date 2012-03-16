@@ -2,6 +2,27 @@
 
 ;;; main interface
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defparameter +pseudoclasses+
+    (list
+      :link
+      :visited
+      :active
+      :hover
+      :focus
+      :first-child
+      :last-child
+      :first-of-type
+      :last-of-type
+      :only-child
+      :only-of-type
+      :root
+      :empty
+      :target
+      :enabled
+      :disabled
+      :checked)))
+
 (defvar *css-stream* nil)
 
 (defvar *indent-css* nil
@@ -59,7 +80,7 @@ There are three possible values:
           (destructuring-bind (specifier element)
               selector
             (ecase specifier
-              (:hover (format nil "~a:hover" (selector-to-string element)))
+              (#.+pseudoclasses+ (format nil "~a:~a" (selector-to-string element) (string-downcase specifier)))
               (:id (css-id-name element))))
           (cond ((and (symbolp selector) (not (symbol-package selector))) (css-id-name selector))
                 ((eql :and selector) ",")
