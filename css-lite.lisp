@@ -152,13 +152,22 @@ There are three possible values:
            ""
            ";"))))
 
-(defun cascade-selectors (parent-selectors selector)
+(defun and-join (seq)
+  (reduce (lambda (a b) (append a '(:and) b)) seq))
+
+(defun cascade-selector (parent-selectors selector)
   (if parent-selectors
-    (reduce (lambda (a b) (append a '(:and) b))
-              (mapcar
-                (lambda (x) (concatenate 'list x selector))
-                  (split-sequence :and parent-selectors)))
+    (and-join
+      (mapcar
+        (lambda (x) (concatenate 'list x selector))
+        (split-sequence :and parent-selectors)))
     selector))
+
+(defun cascade-selectors (parent-selectors selectors)
+  (and-join
+    (mapcar
+      (lambda (x) (cascade-selector parent-selectors x))
+      (split-sequence :and selectors))))
 
 (defun process-css-rule (rule &key (parent-selectors nil))
   (let ((selectors (cascade-selectors parent-selectors (car rule)))
