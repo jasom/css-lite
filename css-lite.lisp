@@ -131,10 +131,16 @@ There are three possible values:
            ""
            ";"))))
 
+(defun cascade-selectors (parent-selectors selector)
+  (if parent-selectors
+    (reduce (lambda (a b) (append a '(:and) b))
+              (mapcar
+                (lambda (x) (concatenate 'list x selector))
+                  (split-sequence :and parent-selectors)))
+    selector))
+
 (defun process-css-rule (rule &key (parent-selectors nil))
-  (let ((selectors (if parent-selectors
-                       (concatenate 'list parent-selectors (car rule))
-                       (car rule)))
+  (let ((selectors (cascade-selectors parent-selectors (car rule)))
         (properties (cadr rule))
         (children-rules (cddr rule)))
     (append (list +newline+ (css-selectors-to-string selectors) " {")

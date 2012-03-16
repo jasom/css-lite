@@ -1,5 +1,6 @@
 (cl:defpackage "CSS-LITE"
-  (:use "COMMON-LISP")
+  (:use "COMMON-LISP"
+        #:split-sequence)
   (:export #:*css-stream*
            #:*indent-css*
            #:css

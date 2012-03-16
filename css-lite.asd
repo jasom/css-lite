@@ -3,8 +3,8 @@
 (asdf:defsystem :css-lite
   :serial t
   :version "0.01"
+  :depends-on (#:split-sequence)
   :components ((:file "package")
-               
                (:file "css-lite")
                (:file "utility")
                (:file "lite-utility")
