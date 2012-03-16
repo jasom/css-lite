@@ -160,13 +160,30 @@ There are three possible values:
 (defun and-join (seq)
   (reduce (lambda (a b) (append a '(:and) b)) seq))
 
+(defun tree-find (val tree)
+  (loop for item in tree
+        when (eql val item) return item
+        when (consp item) do
+          (let ((x (tree-find val item)))
+            (when x (return x)))))
+
+(defun subst-parent (parent rule)
+  (append (butlast parent)
+        (sublis (list (cons :|&| (car (last parent))))
+          rule)))
+
 (defun cascade-selector (parent-selectors selector)
+  (if (tree-find :|&| selector)
+    (and-join
+      (mapcar
+      (lambda (x) (subst-parent x selector))
+      (split-sequence :and parent-selectors)))
   (if parent-selectors
     (and-join
       (mapcar
         (lambda (x) (concatenate 'list x selector))
         (split-sequence :and parent-selectors)))
-    selector))
+    selector)))
 
 (defun cascade-selectors (parent-selectors selectors)
   (and-join
