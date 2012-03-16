@@ -77,11 +77,16 @@ There are three possible values:
 (defun selector-to-string (selector)
   (handler-case 
       (if (listp selector)
-          (destructuring-bind (specifier element)
+          (destructuring-bind (specifier element &rest rest)
               selector
             (ecase specifier
               (#.+pseudoclasses+ (format nil "~a:~a" (selector-to-string element) (string-downcase specifier)))
-              (:id (css-id-name element))))
+              (:id (css-id-name element))
+              (:class 
+                (cond
+                  ((and (= (length rest) 1))
+                   (format nil "~a.~a" (selector-to-string (car rest)) (string-downcase element)))
+                  ((null rest) (format nil ".~a" (string-downcase element)))))))
           (cond ((and (symbolp selector) (not (symbol-package selector))) (css-id-name selector))
                 ((eql :and selector) ",")
                 (t (to-string selector))))
