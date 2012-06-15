@@ -80,13 +80,13 @@ There are three possible values:
           (destructuring-bind (specifier element &rest rest)
               selector
             (ecase specifier
-              (#.+pseudoclasses+ (format nil "~a:~a" (selector-to-string element) (string-downcase specifier)))
+              (#.+pseudoclasses+ (format nil "~a:~a" (selector-to-string element) (to-string specifier)))
               (:id (css-id-name element))
               (:class 
                 (cond
                   ((and (= (length rest) 1))
-                   (format nil "~a.~a" (selector-to-string (car rest)) (string-downcase element)))
-                  ((null rest) (format nil ".~a" (string-downcase element)))))))
+                   (format nil "~a.~a" (selector-to-string (car rest)) (to-string element)))
+                  ((null rest) (format nil ".~a" (to-string element)))))))
           (cond ((and (symbolp selector) (not (symbol-package selector))) (css-id-name selector))
                 ((eql :and selector) ",")
                 (t (to-string selector))))
@@ -111,7 +111,9 @@ There are three possible values:
 
 (defun css-comment-p (val)
   "Return T if `val' is the start of a CSS comment, otherwise return NIL."
-  (string= val "/*" :end1 2))
+  (and (stringp val)
+       (>= (length val) 2)
+       (string= val "/*" :end1 2)))
 
 (defun expand-tree (tree)
   (let ((result '()))
