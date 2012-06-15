@@ -192,16 +192,22 @@ There are three possible values:
       (split-sequence :and selectors))))
 
 (defun process-css-rule (rule &key (parent-selectors nil))
-  (let ((selectors (cascade-selectors parent-selectors (car rule)))
-        (properties (cadr rule))
-        (children-rules (cddr rule)))
-    (append (list +newline+ (css-selectors-to-string selectors) " {")
-            (process-css-properties properties nil)
-            (list +newline+ "}" +newline+)
-            (mapcan 
-             #'(lambda (child-rules) 
-                 (process-css-rule child-rules :parent-selectors selectors))
-             children-rules))))
+  (if (and (stringp (caar rule)) ;WARNING UGLY HACK
+	   (equal (aref (caar rule) 0) #\@))
+      (destructuring-bind (selectors properties &rest children-rules) rule
+	(append (list +newline+ (car selectors) " { ")
+		(mapcan #'process-css-rule children-rules)
+		(list +newline+ "}")))
+      (let ((selectors (cascade-selectors parent-selectors (car rule)))
+	    (properties (cadr rule))
+	    (children-rules (cddr rule)))
+	(append (list +newline+ (css-selectors-to-string selectors) " {")
+		(process-css-properties properties nil)
+		(list +newline+ "}" +newline+)
+		(mapcan 
+		 #'(lambda (child-rules) 
+		     (process-css-rule child-rules :parent-selectors selectors))
+		 children-rules)))))
 
 (defun to-string (x)
   (cond ((stringp x) x)
