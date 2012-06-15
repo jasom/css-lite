@@ -9,9 +9,13 @@
       :visited
       :active
       :hover
+      :before
+      :after
       :focus
       :first-child
+      :first
       :last-child
+      :last
       :first-of-type
       :last-of-type
       :only-child
