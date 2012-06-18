@@ -207,9 +207,11 @@ There are three possible values:
       (let ((selectors (cascade-selectors parent-selectors (car rule)))
 	    (properties (cadr rule))
 	    (children-rules (cddr rule)))
-	(append (list +newline+ (css-selectors-to-string selectors) " {")
+	(append 
+      (when properties
+        (append (list +newline+ (css-selectors-to-string selectors) " {")
 		(process-css-properties properties nil)
-		(list +newline+ "}" +newline+)
+		(list +newline+ "}" +newline+)))
 		(mapcan 
 		 #'(lambda (child-rules) 
 		     (process-css-rule child-rules :parent-selectors selectors))
